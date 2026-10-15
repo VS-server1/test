@@ -1,3 +1,54 @@
+# Кратко: copy-paste
+
+```bash
+-- 1
+CREATE SCHEMA auto_maintenance;
+
+CREATE TABLE auto_maintenance.maintenance_log (
+    log_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    event_time TIMESTAMP NOT NULL,
+    operation TEXT NOT NULL,
+    status TEXT NOT NULL,
+    description TEXT NOT NULL
+);
+
+-- 2
+CREATE PROCEDURE auto_maintenance.analyze_public_tables()
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    ANALYZE public.products;
+
+    INSERT INTO auto_maintenance.maintenance_log
+        (operation, status, description)
+    VALUES ('ANALYZE', 'OK', 'products');
+END;
+$$;
+
+-- 3
+CREATE FUNCTION auto_maintenance.set_event_time()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    NEW.event_time := CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trg_maintenance_log_event_time
+BEFORE INSERT ON auto_maintenance.maintenance_log
+FOR EACH ROW
+EXECUTE FUNCTION auto_maintenance.set_event_time();
+
+-- 4
+CALL auto_maintenance.analyze_public_tables();
+
+SELECT log_id, event_time, operation, status, description
+FROM auto_maintenance.maintenance_log
+ORDER BY log_id;
+```
+
 ## Введение
 
 Проверьте наличие pg admin на пк, если его нет - установите с базами данных. (путь например: ``D:\Папка для Хранения\Прога + таблицы``)
