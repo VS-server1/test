@@ -28,6 +28,7 @@
 |description|	TEXT|	Обязательное поле|
 
 ```bash
+-- 1
 CREATE SCHEMA auto_maintenance;
 
 CREATE TABLE auto_maintenance.maintenance_log (
@@ -45,6 +46,7 @@ CREATE TABLE auto_maintenance.maintenance_log (
 Создайте в auto_maintenance процедуру analyze_public_tables без параметров. Она должна выполнить ANALYZE для public.products, затем добавить в maintenance_log запись: operation = ANALYZE, status = OK, description = products. Поле event_time в процедуре не заполняйте.
 
 ```bash
+-- 2
 CREATE PROCEDURE auto_maintenance.analyze_public_tables()
 LANGUAGE plpgsql
 AS $$
@@ -64,6 +66,7 @@ $$;
 Создайте триггерную функцию и триггер для maintenance_log: при добавлении записи в event_time автоматически устанавливаются текущие дата и время.
 
 ```bash
+-- 3
 CREATE FUNCTION auto_maintenance.set_event_time()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -86,6 +89,7 @@ EXECUTE FUNCTION auto_maintenance.set_event_time();
 При пустом журнале один раз вызовите процедуру. Выведите все поля из maintenance_log. Должна появиться одна запись с данными ANALYZE / OK / products, автоматически заполненными log_id и event_time.
 
 ```bash
+-- 4
 CALL auto_maintenance.analyze_public_tables();
 
 SELECT log_id, event_time, operation, status, description
