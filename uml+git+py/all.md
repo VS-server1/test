@@ -97,6 +97,13 @@ while True:
 ## Решение задания 5. Git
 
 В терминале, в папке проекта:
+
+```bash
+git config user.name "TestUser"
+git config user.email "test@test.com"
+```
+
+
 ```bash
 git init
 git add main.py
